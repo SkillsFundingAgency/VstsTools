@@ -5,7 +5,7 @@ function Get-ReleasedArtifacts {
 .DESCRIPTION
     Long description
 .EXAMPLE
-    PS C:\> <example usage>
+    PS C:\> Get-ReleasedArtifacts -Project myproject -ReleaseEnvironment www -Instance myvstsinstance -PatToken "xxxxxxxxxxx" -MostRecentRelease -Verbose
     Explanation of what the example does
 .INPUTS
     Inputs (if any)
@@ -44,6 +44,7 @@ param(
 )
 
 # Get project id
+##TO DO: refactor as function
 $GetProjectsParams = @{
     Instance = $Instance
     PatToken = $PatToken
@@ -52,9 +53,10 @@ $GetProjectsParams = @{
 }
 
 $Projects = Invoke-VstsRestMethod @GetProjectsParams
-$Project = $Projects.value | where-object {$_.name -eq $ProjectName}
+$Project = $Projects.value | Where-Object {$_.name -eq $ProjectName}
 
 # Get list of releases
+##TO DO: refactor as function
 $GetReleasesListParams = @{
     Instance = $Instance
     PatToken = $PatToken
@@ -82,8 +84,9 @@ foreach($artifactCollection in $Release.release.artifacts) {
         ##May need to refactor this func to return metadata about artifacts rather than a list of files
         ##Then leverage https://docs.microsoft.com/en-us/rest/api/vsts/git/diffs/get to achieve desired result
     
-    ##These conditional statements may then no longer be relevant
+    ##TO DO: these conditional statements may then no longer be relevant
     if($artifactCollection.type -eq "Build") {
+        ##TO DO: refactor as function
         $GetBuildParams = @{
             Instance = $Instance
             PatToken = $PatToken
@@ -99,6 +102,7 @@ foreach($artifactCollection in $Release.release.artifacts) {
         ##TO DO: using $artifactCollection.definitionReference.definition.id and https://docs.microsoft.com/en-us/rest/api/vsts/build/builds/get#uri-parameters get the build, from there get Repository id / name
         $RepositoryId = $Build.repository.id
         
+        ##TO DO: refactor as function
         $GetCommitParams = @{
             Instance = $Instance
             PatToken = $PatToken
