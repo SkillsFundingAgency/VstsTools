@@ -53,7 +53,6 @@ function Get-ReleasedArtifacts {
 
     foreach($ArtifactCollection in $Deployment.Artifacts) {
         
-        ##TO DO: these conditional statements may then no longer be relevant
         if($ArtifactCollection.type -eq "Build") {
 
             $Build = Get-Build -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -BuildId $ArtifactCollection.definitionReference.version.id
@@ -113,4 +112,3 @@ function Get-ReleasedArtifacts {
     
     $Artifacts
 }
-

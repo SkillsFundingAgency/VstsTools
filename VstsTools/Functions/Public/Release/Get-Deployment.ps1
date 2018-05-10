@@ -29,7 +29,7 @@ function Get-Deployment {
     )
     
     process {
-        ##TO DO: refactor as function
+        
         $GetDeploymentsListParams = @{
             Instance = $Instance
             PatToken = $PatToken
