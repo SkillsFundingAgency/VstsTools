@@ -1,4 +1,5 @@
 class ReleasedArtifact {
+
     [string]$ObjectId
     [string]$Filename
     [string]$Path
@@ -9,4 +10,5 @@ class ReleasedArtifact {
     [string]$BuildName
     [string]$RepositoryId
     [string]$RepositoryName
+    
 }

@@ -1,4 +1,4 @@
-$Classes = Get-ChildItem -Path "$($PSScriptRoot)\Classes\*.ps1" -Verbose:$VerbosePreference
+$Classes = Get-ChildItem -Path "..\VstsTools\Classes\*.ps1" -Verbose
 
 foreach($Class in $Classes) {
 
@@ -15,7 +15,7 @@ foreach($Class in $Classes) {
 
 }
 
-$Private = Get-ChildItem -Path "$($PSScriptRoot)\Functions\Private\*.ps1" -Verbose:$VerbosePreference
+$Private = Get-ChildItem -Path "..\VstsTools\Functions\Private\*.ps1" -Verbose
 
 foreach($Function in $Private) {
 
@@ -32,7 +32,7 @@ foreach($Function in $Private) {
 
 }
 
-$Public = Get-ChildItem -Path "$($PSScriptRoot)\Functions\Public\*.ps1" -Recurse -Verbose:$VerbosePreference
+$Public = Get-ChildItem -Path "..\VstsTools\Functions\Public\*.ps1" -Recurse -Verbose
 
 foreach($Function in $Public) {
 
@@ -48,5 +48,3 @@ foreach($Function in $Public) {
     }
 
 }
-
-Export-ModuleMember -Function $($Public | Select-Object -ExpandProperty BaseName) -Verbose:$VerbosePreference
