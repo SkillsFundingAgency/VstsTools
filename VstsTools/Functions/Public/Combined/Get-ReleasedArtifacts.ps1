@@ -28,10 +28,12 @@ function Get-ReleasedArtifacts {
         [Parameter(Mandatory=$true)]
         [string]$ReleaseEnvironment,
 
-        ##TO DO: implement ParameterSet to make a selector \ filter mandatory
-
         #Parameter Description
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true, ParameterSetName="ReleaseName")]
+        [string]$ReleaseName,
+
+        #Returns the most recent successful release to the specified environment
+        [Parameter(Mandatory=$true, ParameterSetName="MostRecent")]
         [switch]$MostRecentDeployment,
 
         #The Visual Studio Team Services account name
@@ -48,7 +50,14 @@ function Get-ReleasedArtifacts {
 
     # Get release
     if($MostRecentDeployment.IsPresent) {
+
         $Deployment = Get-Deployment -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -ReleaseEnvironment $ReleaseEnvironment -MostRecentDeployment
+
+    }
+    elseif($ReleaseName) {
+
+        $Deployment = Get-Deployment -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -ReleaseEnvironment $ReleaseEnvironment -ReleaseName $ReleaseName
+
     }
 
     foreach($ArtifactCollection in $Deployment.Artifacts) {
@@ -76,6 +85,7 @@ function Get-ReleasedArtifacts {
                 }
             }
 
+            ##TO DO: check that number of returned items isn't capped at 999 (tests keep returning a count of 999)
             $Items = Invoke-VstsRestMethod @GetListItemsParams
 
         }
