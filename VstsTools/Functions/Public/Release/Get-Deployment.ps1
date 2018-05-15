@@ -21,10 +21,12 @@ function Get-Deployment {
         [Parameter(Mandatory=$true)]
         [string]$ReleaseEnvironment,
 
-        ##TO DO: implement ParameterSet to make a selector \ filter mandatory
-
         #Parameter Description
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true, ParameterSetName="ReleaseName")]
+        [string]$ReleaseName,
+
+        #Returns the most recent successful release to the specified environment
+        [Parameter(Mandatory=$true, ParameterSetName="MostRecent")]
         [switch]$MostRecentDeployment
     )
     
@@ -46,35 +48,47 @@ function Get-Deployment {
 
             # Filter by status and environment, sort by date, select top 1
             $DeploymentJson = $DeploymentsList | Where-Object {$_.deploymentStatus -eq "succeeded"} | Where-Object {$_.releaseEnvironment.name -eq $ReleaseEnvironment} | Sort-Object -Property completedOn -Descending | Select-Object -First 1
-            ##TO DO: handle no matching $ReleaseEnvironment
-            $Deployment = New-DeploymentObject -DeploymentJson $DeploymentJson
+            $Deployment = New-DeploymentObject -DeploymentJson $DeploymentJson -ReleaseEnvironment $ReleaseEnvironment
             $Deployment
+
         
         }
+        elseif ($ReleaseName) {
+            
+            $DeploymentJson = $DeploymentsList | Where-Object {$_.deploymentStatus -eq "succeeded"} | Where-Object {$_.releaseEnvironment.name -eq $ReleaseEnvironment} | Where-Object {$_.release.name -eq $ReleaseName} | Sort-Object -Property completedOn -Descending | Select-Object -First 1
+            $Deployment = New-DeploymentObject -DeploymentJson $DeploymentJson -ReleaseEnvironment $ReleaseEnvironment
+            $Deployment
+
+        }
         
-        ##TO DO: implement other Release selectors / filters
-            #Failed deployment
-            #Release number
     }
 
 }
 
 function New-DeploymentObject {
     param (
-        $DeploymentJson
+        $DeploymentJson,
+        $ReleaseEnvironment
     )
     
-    # Check that the object is not a collection
-    if (!($DeploymentJson | Get-Member -Name count)) {
+    if($DeploymentJson) {
+        # Check that the object is not a collection
+        if (!($DeploymentJson | Get-Member -Name count)) {
 
-        $Deployment = New-Object -TypeName Deployment
+            $Deployment = New-Object -TypeName Deployment
 
-        $Deployment.ReleaseDefinition = $DeploymentJson.releaseDefinition.name
-        $Deployment.ReleaseId = $DeploymentJson.release.id
-        $Deployment.ReleaseName = $DeploymentJson.release.name
-        $Deployment.Artifacts = $DeploymentJson.release.artifacts
+            $Deployment.ReleaseDefinition = $DeploymentJson.releaseDefinition.name
+            $Deployment.ReleaseId = $DeploymentJson.release.id
+            $Deployment.ReleaseName = $DeploymentJson.release.name
+            $Deployment.Artifacts = $DeploymentJson.release.artifacts
 
-        return $Deployment
+            return $Deployment
+
+        }
+    }
+    else {
+
+        throw "Environment $ReleaseEnvironment not deployed."
 
     }
 }
