@@ -19,6 +19,10 @@ function Get-Deployment {
 
         #Parameter Description
         [Parameter(Mandatory=$true)]
+        [string]$ReleaseDefinitionName,
+
+        #Parameter Description
+        [Parameter(Mandatory=$true)]
         [string]$ReleaseEnvironment,
 
         #Parameter Description
@@ -32,6 +36,8 @@ function Get-Deployment {
     
     process {
         
+        $ReleaseDefinition = Get-ReleaseDefinition -DefinitionName $ReleaseDefinitionName -ProjectId $ProjectId -Instance $Instance -PatToken $PatToken
+
         $GetDeploymentsListParams = @{
             Instance = $Instance
             PatToken = $PatToken
@@ -40,6 +46,9 @@ function Get-Deployment {
             Resource = "deployments"
             ApiVersion = "4.1-preview.2"
             ReleaseManager = $true
+            AdditionalUriParameters = @{
+                definitionId = $ReleaseDefinition.Id
+            }
         }
 
         $DeploymentsList = (Invoke-VstsRestMethod @GetDeploymentsListParams).value

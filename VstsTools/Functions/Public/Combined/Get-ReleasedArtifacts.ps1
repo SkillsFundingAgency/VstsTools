@@ -26,6 +26,10 @@ function Get-ReleasedArtifacts {
 
         #Parameter Description
         [Parameter(Mandatory=$true)]
+        [string]$ReleaseDefinitionName,
+
+        #Parameter Description
+        [Parameter(Mandatory=$true)]
         [string]$ReleaseEnvironment,
 
         #Parameter Description
@@ -51,12 +55,12 @@ function Get-ReleasedArtifacts {
     # Get release
     if($MostRecentDeployment.IsPresent) {
 
-        $Deployment = Get-Deployment -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -ReleaseEnvironment $ReleaseEnvironment -MostRecentDeployment
+        $Deployment = Get-Deployment -ReleaseDefinitionName $ReleaseDefinitionName -ReleaseEnvironment $ReleaseEnvironment -MostRecentDeployment -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id
 
     }
     elseif($ReleaseName) {
 
-        $Deployment = Get-Deployment -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -ReleaseEnvironment $ReleaseEnvironment -ReleaseName $ReleaseName
+        $Deployment = Get-Deployment -ReleaseDefinitionName $ReleaseDefinitionName -ReleaseEnvironment $ReleaseEnvironment -ReleaseName $ReleaseName -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id
 
     }
 
@@ -85,7 +89,6 @@ function Get-ReleasedArtifacts {
                 }
             }
 
-            ##TO DO: check that number of returned items isn't capped at 999 (tests keep returning a count of 999)
             $Items = Invoke-VstsRestMethod @GetListItemsParams
 
         }
