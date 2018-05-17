@@ -23,7 +23,7 @@ function Get-Release {
         $GetReleaseParams = @{
             Instance = $Instance
             PatToken = $PatToken
-            Collection = $Project.id
+            Collection = $ProjectName
             Area = "release"
             Resource = "releases"
             ResourceId = $ReleaseId
