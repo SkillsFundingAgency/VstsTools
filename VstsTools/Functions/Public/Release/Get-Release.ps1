@@ -51,8 +51,9 @@ function New-ReleaseObject {
 
         $Release = New-Object -TypeName Release
 
-        $Release.ReleaseId = $ReleaseJson.release.id
-        $Release.ReleaseName = $ReleaseJson.release.name
+        $Release.ReleaseId = $ReleaseJson.id
+        $Release.ReleaseName = $ReleaseJson.name
+        $Release.CreatedOn = $ReleaseJson.createdOn
         $Release.ReleaseDefintionId = $ReleaseJson.releaseDefinition.id
         $Release.ReleaseDefintionName = $ReleaseJson.releaseDefinition.name
         $Release.Artifacts = $ReleaseJson.artifacts

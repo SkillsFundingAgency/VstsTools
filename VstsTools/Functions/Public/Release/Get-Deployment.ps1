@@ -80,6 +80,7 @@ function New-DeploymentObject {
             $Deployment.ReleaseDefinition = $DeploymentJson.releaseDefinition.name
             $Deployment.ReleaseId = $DeploymentJson.release.id
             $Deployment.ReleaseName = $DeploymentJson.release.name
+            $Deployment.CompletedOn = $DeploymentJson.completedOn
             $Deployment.Artifacts = $DeploymentJson.release.artifacts
 
             return $Deployment
