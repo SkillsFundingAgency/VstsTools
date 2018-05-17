@@ -55,9 +55,13 @@ function Invoke-VstsRestMethod {
         [Parameter(Mandatory=$false)]
         [string]$ResourceComponent,
 
-        #Optional. required when API request is targetting a specific resource component, eg an individual blob in Git repository.
+        #Optional. Required when API request is targetting a specific resource component, eg an individual blob in Git repository.
         [Parameter(Mandatory=$false)]
         [string]$ResourceComponentId,
+
+        #Optional. Required when API request is targetting a specific resource subcomponent, eg a diff from a Git repository.
+        [Parameter(Mandatory=$false)]
+        [string]$ResourceSubComponent,
 
         #Required.  The version of the API that the request is targetting.
         [Parameter(Mandatory=$true)]
@@ -128,13 +132,19 @@ function Invoke-VstsRestMethod {
 
     }
 
+    if($ResourceSubComponent -ne $null -and $ResourceSubComponent -ne "") {
+
+        $ResourceSubComponent = "/$ResourceSubComponent"
+
+    }
+
     if($AdditionalUriParameters -ne $null -and $AdditionalUriParameters -ne "") {
 
         $AdditionalUriParameters.Keys | ForEach-Object { $UriParams += "&$_=$($AdditionalUriParameters.Item($_))"}
 
     }
     
-    $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
+    $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
     Write-Verbose -Message "Invoking URI: $Uri"
     if($HttpBody -eq $null -or $HttpBody -eq "") {
 
