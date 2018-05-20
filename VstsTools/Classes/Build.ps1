@@ -1,6 +1,6 @@
 class Build {
     $DefintionId
-    $BuildDefintionName
+    $BuildDefinitionName
     $BuildNumber
     $RepositoryId
     $RepositoryName

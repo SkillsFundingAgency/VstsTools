@@ -110,13 +110,13 @@ function Get-ReleasedArtifacts {
             $Artifact.ObjectId = $Item.objectId
             $Artifact.Filename = $Item.path.split("/")[$Item.path.split("/").Count -1]
             $Artifact.Path = $Item.path
-            $Artifact.ReleaseDefinitionName = $DeploymentReleaseDefinition
+            $Artifact.ReleaseDefinitionName = $Deployment.ReleaseDefinition
             $Artifact.ReleaseId = $Deployment.Id
             $Artifact.ReleaseName = $Deployment.ReleaseName
-            $Artifact.BuildNumber = $Build.buildNumber
-            $Artifact.BuildName = $Build.definition.name
-            $Artifact.RepositoryId = $Build.repository.id
-            $Artifact.RepositoryName = $Build.repository.name
+            $Artifact.BuildNumber = $Build.BuildNumber
+            $Artifact.BuildName = $Build.BuildDefinitionName
+            $Artifact.RepositoryId = $Build.RepositoryId
+            $Artifact.RepositoryName = $Build.RepositoryName
             $Artifacts += $Artifact
 
         }
