@@ -70,7 +70,10 @@ function Get-ReleaseDiff {
                 $Cmd = "git diff $BaseReleaseCommitId $($ArtifactCollection.definitionReference.pullRequestMergeCommitId.id) --name-only"
                 if($Env:MSDEPLOY_HTTP_USER_AGENT -ne $null -and ($Env:MSDEPLOY_HTTP_USER_AGENT).Substring(0, 4) -eq "VSTS") {
 
+                    Write-Verbose "Running on VSTS"
+                    Write-Verbose "Invoking expression $Cmd"
                     $DiffArtifactsArray = Invoke-Expression $Cmd
+                    Write-Verbose "Cmd $Cmd returned $($DiffArtifactsArray.count) results"
                     $DiffArtifacts = @()
                     foreach ($Artifact in $DiffArtifactsArray) {
                         $DiffArtifact = New-Object -TypeName DiffArtifact
