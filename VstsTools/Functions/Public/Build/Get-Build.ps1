@@ -54,7 +54,7 @@ function New-BuildObject {
         $Build = New-Object -TypeName Build
 
         $Build.DefintionId = $BuildJson.definition.id
-        $Build.BuildDefintionName = $BuildJson.definition.name
+        $Build.BuildDefinitionName = $BuildJson.definition.name
         $Build.BuildNumber = $BuildJson.buildNumber
         $Build.RepositoryId = $BuildJson.repository.id
         $Build.RepositoryName = $BuildJson.repository.name
