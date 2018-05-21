@@ -82,21 +82,9 @@ function Get-ReleaseDiff {
                         $DiffArtifacts += $DiffArtifact
                     }
 
-                    $DiffArtifacts
-
                 }
                 else {
 
-                    Set-Location C:\Users\nick\Source\Repos\grahamandtonic
-                    $DiffArtifactsArray = Invoke-Expression $Cmd
-                    $DiffArtifacts = @()
-                    foreach ($Artifact in $DiffArtifactsArray) {
-                        $DiffArtifact = New-Object -TypeName DiffArtifact
-                        $DiffArtifact.Name = $Artifact.Split("/")[$Artifact.Split("/").Length - 1]
-                        $DiffArtifact.FullName = $Artifact
-                        $DiffArtifacts += $DiffArtifact
-                    }
-                    
                     Write-Host "Cmdlet only implemented to run on VSTS.  To run locally open a cmd prompt in the local clone of the Git repo and execute:`r`n $Cmd"
 
                 }
