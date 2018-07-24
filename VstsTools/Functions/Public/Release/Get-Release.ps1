@@ -3,22 +3,48 @@ function Get-Release {
     param (
         #Parameter Description
         [Parameter(Mandatory=$true)]
-        [string]$ProjectName, 
+        [string]$ProjectName,
 
         #Parameter Description
-        [Parameter(Mandatory=$true)]
-        [string]$ReleaseId, 
+        [Parameter(Mandatory=$true, ParameterSetName="Id")]
+        [string]$ReleaseId,
+
+        #Parameter Description
+        [Parameter(Mandatory=$true, ParameterSetName="Name")]
+        [string]$ReleaseName,
+
+        #Parameter Description
+        [Parameter(Mandatory=$true, ParameterSetName="Name")]
+        [string]$ReleaseDefinitionName,
 
         #The Visual Studio Team Services account name
         [Parameter(Mandatory=$true)]
         [string]$Instance,
-        
+
         #A PAT token with the necessary scope to invoke the requested HttpMethod on the specified Resource
         [Parameter(Mandatory=$true)]
-        [string]$PatToken        
+        [string]$PatToken
     )
-    
+
     process {
+
+        if ($ReleaseName -ne "" -and $ReleaseName -ne $null) {
+
+            $GetReleaseListParams = @{
+                Instance = $Instance
+                PatToken = $PatToken
+                Collection = $ProjectName
+                Area = "release"
+                Resource = "releases"
+                ApiVersion = "4.1-preview.6"
+                ReleaseManager = $true
+            }
+
+            $ReleaseList = Invoke-VstsRestMethod @GetReleaseListParams
+
+            $ReleaseId = ($ReleaseList.value | Where-Object {$_.name -eq $ReleaseName -and $_.releaseDefinition.name -eq $ReleaseDefinitionName}).id
+
+        }
 
         $GetReleaseParams = @{
             Instance = $Instance
@@ -38,12 +64,12 @@ function Get-Release {
         $Release
 
     }
-    
+
 }
 
 function New-ReleaseObject {
     param(
-        $ReleaseJson        
+        $ReleaseJson
     )
 
     # Check that the object is not a collection
@@ -59,6 +85,6 @@ function New-ReleaseObject {
         $Release.Artifacts = $ReleaseJson.artifacts
 
         $Release
-    
+
     }
 }

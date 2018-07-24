@@ -1,4 +1,4 @@
-function Get-ReleasedArtifacts {
+function Get-ReleaseArtifacts {
 <#
     .SYNOPSIS
         Short description
@@ -29,7 +29,7 @@ function Get-ReleasedArtifacts {
         [string]$ReleaseDefinitionName,
 
         #Parameter Description
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName="MostRecent")]
         [string]$ReleaseEnvironment,
 
         #Parameter Description
@@ -43,7 +43,7 @@ function Get-ReleasedArtifacts {
         #The Visual Studio Team Services account name
         [Parameter(Mandatory=$true)]
         [string]$Instance,
-        
+
         #A PAT token with the necessary scope to invoke the requested HttpMethod on the specified Resource
         [Parameter(Mandatory=$true)]
         [string]$PatToken
@@ -56,21 +56,22 @@ function Get-ReleasedArtifacts {
     if($MostRecentDeployment.IsPresent) {
 
         $Deployment = Get-Deployment -ReleaseDefinitionName $ReleaseDefinitionName -ReleaseEnvironment $ReleaseEnvironment -MostRecentDeployment -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id
+        $Release = Get-Release -ReleaseId $Deployment.ReleaseId -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id
 
     }
     elseif($ReleaseName) {
 
-        $Deployment = Get-Deployment -ReleaseDefinitionName $ReleaseDefinitionName -ReleaseEnvironment $ReleaseEnvironment -ReleaseName $ReleaseName -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id
+        $Release = Get-Release -ReleaseName $ReleaseName -ReleaseDefinitionName $ReleaseDefinitionName -Instance $Instance -PatToken $PatToken -ProjectName $Project.Name
 
     }
 
-    foreach($ArtifactCollection in $Deployment.Artifacts) {
-        
+    foreach($ArtifactCollection in $Release.Artifacts) {
+
         if($ArtifactCollection.type -eq "Build") {
 
             $Build = Get-Build -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -BuildId $ArtifactCollection.definitionReference.version.id
             $RepositoryId = $Build.RepositoryId
-            
+
             $Commit = Get-Commit -Instance $Instance -PatToken $PatToken -ProjectId $Project.Id -RepositoryId $RepositoryId -CommitId $artifactCollection.definitionReference.pullRequestMergeCommitId.id
 
             $GetListItemsParams = @{
@@ -93,7 +94,7 @@ function Get-ReleasedArtifacts {
 
         }
         elseif ($artifactCollection.type -eq "Git") {
-            
+
         }
         else {
             Write-Verbose "Artifact type: $($artifactCollection.type) not recognised.  Please report an issue at $ModuleGitHubRepo"
@@ -120,8 +121,8 @@ function Get-ReleasedArtifacts {
             $Artifacts += $Artifact
 
         }
-        
+
     }
-    
+
     $Artifacts
 }
