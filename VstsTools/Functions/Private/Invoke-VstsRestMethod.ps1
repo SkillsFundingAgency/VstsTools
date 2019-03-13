@@ -82,7 +82,7 @@ function Invoke-VstsRestMethod {
     
         #Optional.  Used in conjunction with PUT and POST HTTP Methods.
         [Parameter(Mandatory=$false)]
-        [string]$HttpBody
+        [hashtable]$HttpBody
     )
     
     <#
@@ -146,14 +146,16 @@ function Invoke-VstsRestMethod {
     
     $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
     Write-Verbose -Message "Invoking URI: $Uri"
-    if($HttpBody -eq $null -or $HttpBody -eq "") {
+    if(!$HttpBody) {
 
         $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))}
 
     }
     else {
 
-        ##TO DO: request with HttpBody
+        $JsonBody = $HttpBody | ConvertTo-Json
+        Write-Verbose -Message "$($HttpMethod)ing body of`n$JsonBody"
+        $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))} -Body $JsonBody -ContentType application/json
 
     }
     

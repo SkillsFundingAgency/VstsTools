@@ -24,9 +24,9 @@ function Get-ReleaseDefinition {
     
     begin {
 
-        if($ProjectId -eq $null -and $ProjectId -eq "") {
+        if(!$ProjectId) {
 
-            $Project = Get-VstsProject -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
+            $Project = Get-VstsProject -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken -Verbose:$VerbosePreference
             $ProjectId = $Project.Id
 
         }
@@ -79,6 +79,7 @@ function New-ReleaseDefinitionObject {
     
             $Definition.Id = $DefinitionJson.id
             $Definition.Name = $DefinitionJson.name
+            $Definition.Path = $DefinitionJson.path
     
             $Definition
         

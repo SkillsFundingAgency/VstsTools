@@ -1,9 +1,13 @@
-$Classes = Get-ChildItem -Path "..\VstsTools\Classes\*.ps1" -Verbose
+##RUN WITH F5 NOT FROM PS prompt
+$VerbosePreference = "SilentlyContinue"
+#$VerbosePreference = "Continue"
+$Classes = Get-ChildItem -Path $PSScriptRoot"\..\VstsTools\Classes\*.ps1"
+Write-Host "Importing $($Classes.Count) classes"
 
 foreach($Class in $Classes) {
 
     try {
-
+        Write-Verbose $Class.FullName
         . $Class.FullName
 
     }
@@ -15,12 +19,14 @@ foreach($Class in $Classes) {
 
 }
 
-$Private = Get-ChildItem -Path "..\VstsTools\Functions\Private\*.ps1" -Verbose
+$Private = Get-ChildItem -Path $PSScriptRoot"\..\VstsTools\Functions\Private\*.ps1"
+Write-Host "Importing $($Private.Count) private functions"
 
 foreach($Function in $Private) {
 
     try {
-
+        
+        Write-Verbose $Function.FullName
         . $Function.FullName
 
     }
@@ -32,12 +38,14 @@ foreach($Function in $Private) {
 
 }
 
-$Public = Get-ChildItem -Path "..\VstsTools\Functions\Public\*.ps1" -Recurse -Verbose
+$Public = Get-ChildItem -Path $PSScriptRoot"\..\VstsTools\Functions\Public\*.ps1" -Recurse
+Write-Host "Importing $($Public.Count) public functions"
 
 foreach($Function in $Public) {
 
     try {
-
+        
+        Write-Verbose $Function.FullName
         . $Function.FullName
 
     }

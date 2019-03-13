@@ -8,11 +8,11 @@ function Get-Deployment {
         #The Visual Studio Team Services account name
         [Parameter(Mandatory=$true)]
         [string]$Instance,
-        
+
         #A PAT token with the necessary scope to invoke the requested HttpMethod on the specified Resource
         [Parameter(Mandatory=$true)]
-        [string]$PatToken,   
-        
+        [string]$PatToken,
+
         #Parameter Description
         [Parameter(Mandatory=$true)]
         [string]$ProjectId,
@@ -33,10 +33,11 @@ function Get-Deployment {
         [Parameter(Mandatory=$true, ParameterSetName="MostRecent")]
         [switch]$MostRecentDeployment
     )
-    
+
     process {
-        
+
         $ReleaseDefinition = Get-ReleaseDefinition -DefinitionName $ReleaseDefinitionName -ProjectId $ProjectId -Instance $Instance -PatToken $PatToken
+        Write-Verbose -Message "Retrieved release definition $($ReleaseDefinition.Name)"
 
         $GetDeploymentsListParams = @{
             Instance = $Instance
@@ -52,6 +53,7 @@ function Get-Deployment {
         }
 
         $DeploymentsList = (Invoke-VstsRestMethod @GetDeploymentsListParams).value
+        Write-Verbose -Message "Retrieved $($DeploymentsList.Count) deployments"
 
         if($MostRecentDeployment.IsPresent) {
 
@@ -60,16 +62,16 @@ function Get-Deployment {
             $Deployment = New-DeploymentObject -DeploymentJson $DeploymentJson -ReleaseEnvironment $ReleaseEnvironment
             $Deployment
 
-        
+
         }
         elseif ($ReleaseName) {
-            
+
             $DeploymentJson = $DeploymentsList | Where-Object {$_.deploymentStatus -eq "succeeded"} | Where-Object {$_.releaseEnvironment.name -eq $ReleaseEnvironment} | Where-Object {$_.release.name -eq $ReleaseName} | Sort-Object -Property completedOn -Descending | Select-Object -First 1
             $Deployment = New-DeploymentObject -DeploymentJson $DeploymentJson -ReleaseEnvironment $ReleaseEnvironment
             $Deployment
 
         }
-        
+
     }
 
 }
@@ -79,7 +81,7 @@ function New-DeploymentObject {
         $DeploymentJson,
         $ReleaseEnvironment
     )
-    
+
     if($DeploymentJson) {
         # Check that the object is not a collection
         if (!($DeploymentJson | Get-Member -Name count)) {
