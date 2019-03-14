@@ -54,7 +54,7 @@ function Get-ReleaseDefinition {
 
             $Definition = New-ReleaseDefinitionObject -DefinitionJson $ListDefinitionsJson.value[0]
 
-            $Definition
+            , $Definition
         
         }
         else {

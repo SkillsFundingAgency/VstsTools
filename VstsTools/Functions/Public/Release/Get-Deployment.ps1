@@ -37,7 +37,16 @@ function Get-Deployment {
     process {
 
         $ReleaseDefinition = Get-ReleaseDefinition -DefinitionName $ReleaseDefinitionName -ProjectId $ProjectId -Instance $Instance -PatToken $PatToken
-        Write-Verbose -Message "Retrieved release definition $($ReleaseDefinition.Name)"
+        if ($ReleaseDefinition.count -eq 1) {
+
+            Write-Verbose -Message "Retrieved release definition $($ReleaseDefinition.Name)"
+
+        }
+        else {
+
+            throw "More than 1 release definition matches this name"
+
+        }
 
         $GetDeploymentsListParams = @{
             Instance = $Instance
