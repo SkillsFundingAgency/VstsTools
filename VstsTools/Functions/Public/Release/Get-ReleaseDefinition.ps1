@@ -57,9 +57,22 @@ function Get-ReleaseDefinition {
             , $Definition
         
         }
+        elseif ($ListDefinitionsJson.count -gt 1) {
+
+            $Definitions = @()
+            
+            foreach ($Definition in $ListDefinitionsJson.value) {
+
+                $Definitions += New-ReleaseDefinitionObject -DefinitionJson $Definition
+
+            }
+            
+            $Definitions
+
+        }
         else {
 
-            throw "More than 1 definition matches DefinitionName $DefinitionName"
+            throw "No definition names match DefinitionName $DefinitionName"
 
         }
 

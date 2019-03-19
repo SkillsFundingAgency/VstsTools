@@ -1,5 +1,14 @@
-function New-BatchDeployment {
-    [CmdletBinding()]
+function New-SerialDeployment {
+    <#
+    .SYNOPSIS
+    Creates the next release in a series and triggers a deployment from a collection of releases.
+    .DESCRIPTION
+    Creates the next release in a series and triggers a deployment from a collection of releases.  
+    The collection of releases can be supplied either as an Azure DevOps folder or an array of release definition names.
+    .EXAMPLE
+    New-SerialDeployment ##TO DO
+    #>
+    [CmdletBinding(0)]
     param(
         #The environment name
         [Parameter(Mandatory=$true)]
@@ -10,9 +19,9 @@ function New-BatchDeployment {
         [string]$ReleaseFolderPath,
 
         #An array of release names
-         [Parameter(Mandatory=$true, ParameterSetName="Names")]
-         [string[]]$ReleaseNames,       
-   
+            [Parameter(Mandatory=$true, ParameterSetName="Names")]
+            [string[]]$ReleaseNames,       
+    
         #Parameter Description
         [Parameter(Mandatory=$true)]
         [string]$ProjectName,
@@ -38,6 +47,8 @@ function New-BatchDeployment {
 
     }
     else {
+
         throw "Must specify an array of names or a path."
+
     }
 }
