@@ -18,8 +18,12 @@ function Get-ReleaseDefinition {
         [string]$ProjectName,
 
         #Parameter Description
-        [Parameter(Mandatory=$true)]
-        [string]$DefinitionName
+        [Parameter(Mandatory=$false)]
+        [string]$DefinitionName,
+
+        #The path within Azure DevOps Pipelines that the release(s) are stored within
+        [Parameter(Mandatory=$false)]
+        [string]$DefinitionPath
     )
     
     begin {
@@ -43,12 +47,23 @@ function Get-ReleaseDefinition {
             Resource = "definitions"
             ApiVersion = "5.0-preview.3"
             ReleaseManager = $true
-            AdditionalUriParameters = @{
+        }
+
+        if ($DefinitionName) {
+
+            $ListDefinitionsParams["AdditionalUriParameters"] = @{
                 searchText = $DefinitionName
             }
+
         }
 
         $ListDefinitionsJson = Invoke-VstsRestMethod @ListDefinitionsParams
+
+        if ($DefinitionPath) {
+
+            $ListDefinitionsJson.value = $ListDefinitionsJson.value | Where-Object {$_.Path -eq $DefinitionPath}
+
+        }
 
         if($ListDefinitionsJson.count -eq 1) {
 

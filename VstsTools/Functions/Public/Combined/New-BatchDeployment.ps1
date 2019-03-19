@@ -33,7 +33,6 @@ function New-BatchDeployment {
     }
     elseif ($PSCmdlet.ParameterSetName -eq "Path") {
         
-        ##TO DO: modify Get-ReleaseDefintion to use path as a searchText term / filter returned results by path
         ##TO DO: get a collection of releases by path
 
     }
