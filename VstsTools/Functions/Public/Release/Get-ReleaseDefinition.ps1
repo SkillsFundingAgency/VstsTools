@@ -61,7 +61,9 @@ function Get-ReleaseDefinition {
 
         if ($DefinitionPath) {
 
-            $ListDefinitionsJson.value = $ListDefinitionsJson.value | Where-Object {$_.Path -eq $DefinitionPath}
+            $MatchingPaths = $ListDefinitionsJson.value | Where-Object {$_.path -eq $DefinitionPath}
+            Write-Verbose -Message "Found $($MatchingPaths.Count) releases with matching paths"
+            $ListDefinitionsJson.value = $MatchingPaths
 
         }
 

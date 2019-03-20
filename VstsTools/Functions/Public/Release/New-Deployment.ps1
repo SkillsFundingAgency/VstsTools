@@ -1,9 +1,9 @@
 function New-Deployment {
     [CmdletBinding()]
     param (
-        #Parameter Description
+        #The ReleaseEnvironmentId, the id of the environment within the release (as opposed to the id of the environment within the release definition)
         [Parameter(Mandatory=$true, ParameterSetName="Name")]
-        [string]$EnvironmentId,
+        [int]$EnvironmentId,
     
         #Parameter Description
         [Parameter(Mandatory=$true, ParameterSetName="Name")]

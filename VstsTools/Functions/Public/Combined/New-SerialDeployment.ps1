@@ -8,7 +8,7 @@ function New-SerialDeployment {
     .EXAMPLE
     New-SerialDeployment ##TO DO
     #>
-    [CmdletBinding(0)]
+    [CmdletBinding()]
     param(
         #The environment name
         [Parameter(Mandatory=$true)]
@@ -19,8 +19,12 @@ function New-SerialDeployment {
         [string]$ReleaseFolderPath,
 
         #An array of release names
-            [Parameter(Mandatory=$true, ParameterSetName="Names")]
-            [string[]]$ReleaseNames,       
+        [Parameter(Mandatory=$true, ParameterSetName="Names")]
+        [string[]]$ReleaseNames,
+        
+        #The name of the release triggering the serial deployment.  The next release to be triggered will be the release after this one in the collection.
+        [Parameter(Mandatory=$true)]
+        [string]$ThisRelease,
     
         #Parameter Description
         [Parameter(Mandatory=$true)]
@@ -42,7 +46,35 @@ function New-SerialDeployment {
     }
     elseif ($PSCmdlet.ParameterSetName -eq "Path") {
         
-        ##TO DO: get a collection of releases by path
+        $ReleaseDefinitions = Get-ReleaseDefinition -DefinitionPath $ReleaseFolderPath -Instance $Instance -PatToken $PatToken -ProjectName $ProjectName
+        Write-Verbose -Message "Got $($ReleaseDefinitions.Count) releases: $(($ReleaseDefinitions | Select-Object -Property Name).Name -Join ", ")"
+        $TriggerNextRelease = $false
+        foreach ($Definition in $ReleaseDefinitions) {
+
+            if ($Definition.Name -eq $ThisRelease) {
+
+                $TriggerNextRelease = $true
+                Write-Verbose -Message "Found release name matching $ThisRelease, skipping ahead to next release."
+
+                continue
+
+            } 
+
+            if ($TriggerNextRelease) {
+
+                Write-Verbose -Message "Creating release with definition: $($Definition.Name)"
+                $TriggeredRelease = New-Release -ProjectName $ProjectName -ReleaseDefinitionId $Definition.Id -Instance $Instance -PatToken $PatToken
+                $EnvironmentId = ($TriggeredRelease.Environments | Where-Object {$_.Name -eq $EnvironmentName}).ReleaseEnvironmentId
+                Write-Verbose -Message "Triggering deployment for environment $EnvironmentId ($EnvironmentName) in release $($TriggeredRelease.ReleaseId) ($($Definition.Name))"
+                $TriggeredEnvironment = New-Deployment -EnvironmentId $EnvironmentId -ReleaseId $TriggeredRelease.ReleaseId -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
+
+                $TriggeredEnvironment
+
+                break
+
+            }
+
+        }
 
     }
     else {
