@@ -46,11 +46,16 @@ function New-SerialDeployment {
     if ($PSCmdlet.ParameterSetName -eq "Names") {
 
         ##TO DO: get each release defintion by name and add to a collection
+        throw "Not implemented - serial release with array of definition names"
 
     }
     elseif ($PSCmdlet.ParameterSetName -eq "Path") {
         
-        ##TO DO: block on root path
+        if ($ReleaseFolderPath -eq "\") {
+
+            throw "Terminating serial deployment - triggering a serial deployment with a ReleaseFolderPath of '\' will release everything in your project!"
+
+        }
 
         ##TO DO: consider impact of the order release defs are returned in / fix this alphabetically
 
@@ -101,3 +106,4 @@ function New-SerialDeployment {
 
     }
 }
+New-SerialDeployment -EnvironmentName "blog" -ReleaseFolderPath "\" -ThisRelease "grahamandtonic-test" -PrimaryArtefactBranchName "master" -Instance nickgraham101 -PatToken bwrbpkdv4fwrw675kbd3mv5vlnpuzjx6qh7odeppnuo55zxe2eya -ProjectName grahamandtonic -Verbose
