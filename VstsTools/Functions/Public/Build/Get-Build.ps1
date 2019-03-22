@@ -1,7 +1,8 @@
 function Get-Build {
 <#
     .NOTES
-    API Reference: https://docs.microsoft.com/en-us/rest/api/vsts/build/builds/get?view=vsts-rest-5.0
+    API Reference Get: https://docs.microsoft.com/en-us/rest/api/vsts/build/builds/get?view=vsts-rest-5.0
+    API Reference List: https://docs.microsoft.com/en-gb/rest/api/azure/devops/build/builds/list?view=azure-devops-rest-5.0
 #>
     [CmdletBinding()]
     param (
@@ -18,8 +19,17 @@ function Get-Build {
         [string]$ProjectId,
 
         #Parameter Description
-        [Parameter(Mandatory=$true)]
-        [string]$BuildId      
+        [Parameter(Mandatory=$true, ParameterSetName="Id")]
+        [int]$BuildId,
+
+        #The branch name, for git repos must be in the full reference, eg refs/heads/master rather than master
+        [Parameter(Mandatory=$true, ParameterSetName="BranchName")]
+        [string]$BranchName,
+
+        #Parameter Description
+        [Parameter(Mandatory=$true, ParameterSetName="BranchName")]
+        [int]$BuildDefinitionId
+
     )
     
     process {
@@ -30,11 +40,54 @@ function Get-Build {
             Collection = $ProjectId
             Area = "build"
             Resource = "builds"
-            ResourceId = $BuildId
-            ApiVersion = "4.1"
+            ApiVersion = "5.0"
+        }
+
+        if ($PSCmdlet.ParameterSetName -eq "Id") {
+
+            $GetBuildParams["ResourceId"] = $BuildId
+
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq "BranchName") {
+
+            $GetBuildParams["AdditionalUriParameters"] = @{
+                definitions = $BuildDefinitionId
+                #branchName = $BranchName
+            }
+
         }
 
         $BuildJson = Invoke-VstsRestMethod @GetBuildParams
+
+        if ($BuildJson.count -eq 1) {
+
+            ##TO DO: return an array (this will break other functions)
+            $Build = New-BuildObject -BuildJson $BuildJson
+
+        }
+        elseif ($BuildJson.count -gt 1) {
+
+            $Builds = @()
+
+            foreach ($Build in $BuildJson.value) {
+
+                $Builds += New-BuildObject -BuildJson $Build
+
+            }
+
+            return $Builds | Sort-Object -Property QueueTime -Descending
+
+        }
+        elseif ($BuildJson | Get-Member -Name buildNumber) {
+            
+            $Build = New-BuildObject -BuildJson $BuildJson
+
+        }
+        else {
+
+            throw "No builds matched the supplied parameters"
+
+        }
 
         $Build = New-BuildObject -BuildJson $BuildJson
 
@@ -56,6 +109,7 @@ function New-BuildObject {
         $Build.DefintionId = $BuildJson.definition.id
         $Build.BuildDefinitionName = $BuildJson.definition.name
         $Build.BuildNumber = $BuildJson.buildNumber
+        $Build.QueueTime = $BuildJson.queueTime
         $Build.RepositoryId = $BuildJson.repository.id
         $Build.RepositoryName = $BuildJson.repository.name
 

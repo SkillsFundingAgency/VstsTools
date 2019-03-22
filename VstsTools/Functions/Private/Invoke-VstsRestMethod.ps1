@@ -153,7 +153,7 @@ function Invoke-VstsRestMethod {
     }
     else {
 
-        $JsonBody = $HttpBody | ConvertTo-Json
+        $JsonBody = $HttpBody | ConvertTo-Json -Depth 10
         Write-Verbose -Message "$($HttpMethod)ing body of`n$JsonBody"
         $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))} -Body $JsonBody -ContentType application/json
 

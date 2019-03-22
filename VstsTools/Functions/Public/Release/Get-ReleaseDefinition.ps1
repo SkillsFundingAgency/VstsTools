@@ -11,18 +11,28 @@ function Get-ReleaseDefinition {
 
         #Parameter Description
         [Parameter(Mandatory=$true, ParameterSetName="ProjectId")]
+        [Parameter(Mandatory=$false, ParameterSetName="Id")]
+        [Parameter(Mandatory=$false, ParameterSetName="Name")]
+        [Parameter(Mandatory=$false, ParameterSetName="Path")]
         [string]$ProjectId,
 
         #Parameter Description
         [Parameter(Mandatory=$true, ParameterSetName="ProjectName")]
+        [Parameter(Mandatory=$false, ParameterSetName="Id")]
+        [Parameter(Mandatory=$false, ParameterSetName="Name")]
+        [Parameter(Mandatory=$false, ParameterSetName="Path")]
         [string]$ProjectName,
 
         #Parameter Description
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true, ParameterSetName="Id")]
+        [int]$DefinitionId,
+
+        #Parameter Description
+        [Parameter(Mandatory=$true, ParameterSetName="Name")]
         [string]$DefinitionName,
 
         #The path within Azure DevOps Pipelines that the release(s) are stored within
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true, ParameterSetName="Path")]
         [string]$DefinitionPath
     )
     
@@ -45,25 +55,43 @@ function Get-ReleaseDefinition {
             Collection = $ProjectId
             Area = "release"
             Resource = "definitions"
-            ApiVersion = "5.0-preview.3"
+            ApiVersion = "5.0"
             ReleaseManager = $true
+            AdditionalUriParameters = @{
+                '$expand' = "artifacts"
+            }
         }
 
-        if ($DefinitionName) {
+        if ($PSCmdlet.ParameterSetName -eq "Name") {
 
             $ListDefinitionsParams["AdditionalUriParameters"] = @{
                 searchText = $DefinitionName
+                '$expand' = "artifacts"
             }
+
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq "Id") {
+
+            $ListDefinitionsParams["ResourceId"] = $DefinitionId
 
         }
 
         $ListDefinitionsJson = Invoke-VstsRestMethod @ListDefinitionsParams
 
-        if ($DefinitionPath) {
+        if ($PSCmdlet.ParameterSetName -eq "Path") {
 
             $MatchingPaths = $ListDefinitionsJson.value | Where-Object {$_.path -eq $DefinitionPath}
             Write-Verbose -Message "Found $($MatchingPaths.Count) releases with matching paths"
-            $ListDefinitionsJson.value = $MatchingPaths
+            if ($MatchingPaths) {
+
+                $ListDefinitionsJson.value = $MatchingPaths
+
+            }
+            else {
+
+                throw "No definition paths match DefinitionPath $DefinitionPath"
+
+            }
 
         }
 
@@ -74,7 +102,14 @@ function Get-ReleaseDefinition {
             , $Definition
         
         }
-        elseif ($ListDefinitionsJson.count -gt 1) {
+        elseif($ListDefinitionsJson | Get-Member -Name releaseNameFormat) {
+
+            $Definition = New-ReleaseDefinitionObject -DefinitionJson $ListDefinitionsJson
+
+            , $Definition
+        
+        }
+        elseif ($ListDefinitionsJson.count -gt 1 -and $ListDefinitionsJson.value.GetType().BaseType.ToString() -eq "System.Array") {
 
             $Definitions = @()
             
@@ -110,7 +145,10 @@ function New-ReleaseDefinitionObject {
             $Definition.Id = $DefinitionJson.id
             $Definition.Name = $DefinitionJson.name
             $Definition.Path = $DefinitionJson.path
-    
+            $Definition.PrimaryArtifact = New-Object -TypeName PipelineArtifact
+            $Definition.PrimaryArtifact.Alias = ($DefinitionJson.artifacts | Where-Object {$_.isPrimary -eq $true}).alias
+            $Definition.PrimaryArtifact.BuildDefinitionId = ($DefinitionJson.artifacts | Where-Object {$_.isPrimary -eq $true -and $_.Type -eq "Build"}).definitionReference.definition.id
+
             $Definition
         
         }

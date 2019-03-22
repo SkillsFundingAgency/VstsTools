@@ -36,7 +36,11 @@ function New-SerialDeployment {
 
         #A PAT token with the necessary scope to invoke the requested HttpMethod on the specified Resource
         [Parameter(Mandatory=$true)]
-        [string]$PatToken
+        [string]$PatToken,
+
+        #(Optional) The name of the branch in the primary artefact that will be released.  If not specified then the default version for the primary artefact will be used.  The branch name, for git repos must be in the full reference, eg refs/heads/master rather than master.
+        [Parameter(Mandatory=$false)]    
+        [string]$PrimaryArtefactBranchName
     )
 
     if ($PSCmdlet.ParameterSetName -eq "Names") {
@@ -46,6 +50,10 @@ function New-SerialDeployment {
     }
     elseif ($PSCmdlet.ParameterSetName -eq "Path") {
         
+        ##TO DO: block on root path
+
+        ##TO DO: consider impact of the order release defs are returned in / fix this alphabetically
+
         $ReleaseDefinitions = Get-ReleaseDefinition -DefinitionPath $ReleaseFolderPath -Instance $Instance -PatToken $PatToken -ProjectName $ProjectName
         Write-Verbose -Message "Got $($ReleaseDefinitions.Count) releases: $(($ReleaseDefinitions | Select-Object -Property Name).Name -Join ", ")"
         $TriggerNextRelease = $false
@@ -54,7 +62,7 @@ function New-SerialDeployment {
             if ($Definition.Name -eq $ThisRelease) {
 
                 $TriggerNextRelease = $true
-                Write-Verbose -Message "Found release name matching $ThisRelease, skipping ahead to next release."
+                Write-Verbose -Message "Found release definition name matching $ThisRelease, skipping ahead to next release."
 
                 continue
 
@@ -63,7 +71,17 @@ function New-SerialDeployment {
             if ($TriggerNextRelease) {
 
                 Write-Verbose -Message "Creating release with definition: $($Definition.Name)"
-                $TriggeredRelease = New-Release -ProjectName $ProjectName -ReleaseDefinitionId $Definition.Id -Instance $Instance -PatToken $PatToken
+                if ($PrimaryArtefactBranchName) {
+
+                    $TriggeredRelease = New-Release -ReleaseDefinitionId $Definition.Id -PrimaryArtifactBranchName $PrimaryArtefactBranchName -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
+
+                }
+                else {
+
+                    $TriggeredRelease = New-Release -ReleaseDefinitionId $Definition.Id -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
+
+                }
+
                 $EnvironmentId = ($TriggeredRelease.Environments | Where-Object {$_.Name -eq $EnvironmentName}).ReleaseEnvironmentId
                 Write-Verbose -Message "Triggering deployment for environment $EnvironmentId ($EnvironmentName) in release $($TriggeredRelease.ReleaseId) ($($Definition.Name))"
                 $TriggeredEnvironment = New-Deployment -EnvironmentId $EnvironmentId -ReleaseId $TriggeredRelease.ReleaseId -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
