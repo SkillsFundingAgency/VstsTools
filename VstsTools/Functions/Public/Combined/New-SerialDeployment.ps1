@@ -57,9 +57,7 @@ function New-SerialDeployment {
 
         }
 
-        ##TO DO: consider impact of the order release defs are returned in / fix this alphabetically
-
-        $ReleaseDefinitions = Get-ReleaseDefinition -DefinitionPath $ReleaseFolderPath -Instance $Instance -PatToken $PatToken -ProjectName $ProjectName
+        $ReleaseDefinitions = Get-ReleaseDefinition -DefinitionPath $ReleaseFolderPath -Instance $Instance -PatToken $PatToken -ProjectName $ProjectName | Sort-Object -Property Name
         Write-Verbose -Message "Got $($ReleaseDefinitions.Count) releases: $(($ReleaseDefinitions | Select-Object -Property Name).Name -Join ", ")"
         $TriggerNextRelease = $false
         foreach ($Definition in $ReleaseDefinitions) {
@@ -106,4 +104,3 @@ function New-SerialDeployment {
 
     }
 }
-New-SerialDeployment -EnvironmentName "blog" -ReleaseFolderPath "\" -ThisRelease "grahamandtonic-test" -PrimaryArtefactBranchName "master" -Instance nickgraham101 -PatToken bwrbpkdv4fwrw675kbd3mv5vlnpuzjx6qh7odeppnuo55zxe2eya -ProjectName grahamandtonic -Verbose
