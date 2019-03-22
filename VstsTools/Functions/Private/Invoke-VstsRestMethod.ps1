@@ -148,7 +148,7 @@ function Invoke-VstsRestMethod {
     Write-Verbose -Message "Invoking URI: $Uri"
     if(!$HttpBody) {
 
-        $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))}
+        $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))} -UseBasicParsing
 
     }
     else {
