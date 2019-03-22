@@ -2,11 +2,16 @@ function New-SerialDeployment {
     <#
     .SYNOPSIS
     Creates the next release in a series and triggers a deployment from a collection of releases.
+
     .DESCRIPTION
     Creates the next release in a series and triggers a deployment from a collection of releases.  
     The collection of releases can be supplied either as an Azure DevOps folder or an array of release definition names.
+
     .EXAMPLE
     New-SerialDeployment ##TO DO
+
+    .NOTES
+    Requires a PAT token with the following permissions: Build (Read); Release (Read, write, & execute)
     #>
     [CmdletBinding()]
     param(
@@ -38,7 +43,7 @@ function New-SerialDeployment {
         [Parameter(Mandatory=$true)]
         [string]$PatToken,
 
-        #(Optional) The name of the branch in the primary artefact that will be released.  If not specified then the default version for the primary artefact will be used.  The branch name, for git repos must be in the full reference, eg refs/heads/master rather than master.
+        #(Optional) The name of the branch in the primary artefact that will be released.  The branch name, for git repos must be in the full reference, eg refs/heads/master rather than master.  If not specified then the default version for the primary artefact will be used.
         [Parameter(Mandatory=$false)]    
         [string]$PrimaryArtefactBranchName
     )

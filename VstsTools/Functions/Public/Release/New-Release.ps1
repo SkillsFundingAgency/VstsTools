@@ -1,5 +1,7 @@
 <#
     .NOTES
+    Requires a PAT token with the following permissions: Build (Read); Release (Read, write, & execute)
+    
     API Reference: https://docs.microsoft.com/en-us/rest/api/azure/devops/release/releases/create?view=azure-devops-rest-5.0
 #>
 function New-Release {
