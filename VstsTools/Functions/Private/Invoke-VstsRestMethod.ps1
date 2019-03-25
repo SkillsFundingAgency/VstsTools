@@ -144,6 +144,9 @@ function Invoke-VstsRestMethod {
 
     }
     
+    # Azure DevOps API requires TLS 1.2 to establish a connection.  Enforce this to ensure compatability with older versions of PowerShell.
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
     $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
     Write-Verbose -Message "Invoking URI: $Uri"
     if(!$HttpBody) {
