@@ -61,11 +61,13 @@ function New-Release {
 
             $LatestBuild = Get-Build @GetBuildParams | Select-Object -First 1
 
+            Write-Verbose -Message "Setting primary artefact for release to BuildNumber: $($LatestBuild.BuildNumber) \ BuildId: $($LatestBuild.BuildId)"
+
             $Body["artifacts"] = @(
                 @{
                     alias = $ReleaseDefinition.PrimaryArtifact.Alias
                     instanceReference = @{
-                        id = $LatestBuild.BuildNumber
+                        id = $LatestBuild.BuildId
                         name = $null
                     }
                 }
