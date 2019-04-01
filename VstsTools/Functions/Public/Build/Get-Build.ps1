@@ -108,6 +108,7 @@ function New-BuildObject {
 
         $Build.DefintionId = $BuildJson.definition.id
         $Build.BuildDefinitionName = $BuildJson.definition.name
+        $Build.$BuildId = $BuildJson.id
         $Build.BuildNumber = $BuildJson.buildNumber
         $Build.QueueTime = $BuildJson.queueTime
         $Build.RepositoryId = $BuildJson.repository.id
