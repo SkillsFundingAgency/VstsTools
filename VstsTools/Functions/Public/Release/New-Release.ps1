@@ -32,8 +32,9 @@ function New-Release {
 
         $Body = @{
             definitionId = $ReleaseDefinitionId
+            description = "Requested via API call using PAT token."
             isDraft = $false
-            reason = "Requested via API call"   
+            reason = "none"   
             manualEnvironments = $null       
         }
 
