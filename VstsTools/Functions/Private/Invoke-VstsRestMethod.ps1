@@ -148,6 +148,8 @@ function Invoke-VstsRestMethod {
     [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 
     $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
+    $Uri = [uri]::EscapeUriString($Uri)
+    $Uri = Format-EscapedUri -Uri $Uri
     Write-Verbose -Message "Invoking URI: $Uri"
     if(!$HttpBody) {
 

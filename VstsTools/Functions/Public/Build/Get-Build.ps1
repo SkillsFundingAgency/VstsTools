@@ -52,7 +52,7 @@ function Get-Build {
 
             $GetBuildParams["AdditionalUriParameters"] = @{
                 definitions = $BuildDefinitionId
-                #branchName = $BranchName
+                branchName = $BranchName
             }
 
         }
@@ -106,13 +106,23 @@ function New-BuildObject {
 
         $Build = New-Object -TypeName Build
 
-        $Build.DefintionId = $BuildJson.definition.id
-        $Build.BuildDefinitionName = $BuildJson.definition.name
-        $Build.$BuildId = $BuildJson.id
+        $Build.BuildId = $BuildJson.id
         $Build.BuildNumber = $BuildJson.buildNumber
+        $Build.BranchName = $BuildJson.sourceBranch
+        $Build.BuildDefinitionName = $BuildJson.definition.name
+        $Build.DefintionId = $BuildJson.definition.id
         $Build.QueueTime = $BuildJson.queueTime
-        $Build.RepositoryId = $BuildJson.repository.id
-        $Build.RepositoryName = $BuildJson.repository.name
+        if ($BuildJson.repository.type -eq "GitHub") {
+
+            $Build.RepositoryId = $BuildJson.repository.id
+
+        }
+        elseif ($BuildJson.repository.type -eq "TfsGit") {
+
+            $Build.RepositoryId = $BuildJson.repository.id
+            $Build.RepositoryName = $BuildJson.repository.name
+
+        }
 
         $Build
     
