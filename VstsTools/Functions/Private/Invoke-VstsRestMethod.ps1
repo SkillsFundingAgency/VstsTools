@@ -143,9 +143,6 @@ function Invoke-VstsRestMethod {
         $AdditionalUriParameters.Keys | ForEach-Object { $UriParams += "&$_=$($AdditionalUriParameters.Item($_))"}
 
     }
-    
-    # Azure DevOps API requires TLS 1.2 to establish a connection.  Enforce this to ensure compatability with older versions of PowerShell.
-    [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 
     $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
     $Uri = [uri]::EscapeUriString($Uri)
