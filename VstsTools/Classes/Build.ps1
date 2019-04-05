@@ -1,7 +1,10 @@
 class Build {
-    $DefintionId
-    $BuildDefinitionName
+    $BuildId
     $BuildNumber
+    $BranchName
+    $BuildDefinitionName
+    $DefintionId
+    $QueueTime
     $RepositoryId
     $RepositoryName
 }

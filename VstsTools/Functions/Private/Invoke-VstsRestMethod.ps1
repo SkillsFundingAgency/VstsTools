@@ -82,7 +82,7 @@ function Invoke-VstsRestMethod {
     
         #Optional.  Used in conjunction with PUT and POST HTTP Methods.
         [Parameter(Mandatory=$false)]
-        [string]$HttpBody
+        [hashtable]$HttpBody
     )
     
     <#
@@ -143,17 +143,21 @@ function Invoke-VstsRestMethod {
         $AdditionalUriParameters.Keys | ForEach-Object { $UriParams += "&$_=$($AdditionalUriParameters.Item($_))"}
 
     }
-    
-    $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
-    Write-Verbose -Message "Invoking URI: $Uri"
-    if($HttpBody -eq $null -or $HttpBody -eq "") {
 
-        $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))}
+    $Uri = "https://$Instance$Vsrm.visualstudio.com/$Collection$TeamProject/_apis/$($Area)$($Resource)$($ResourceId)$($ResourceComponent)$($ResourceSubComponent)$($ResourceComponentId)?api-version=$($ApiVersion)$($UriParams)"
+    $Uri = [uri]::EscapeUriString($Uri)
+    $Uri = Format-EscapedUri -Uri $Uri
+    Write-Verbose -Message "Invoking URI: $Uri"
+    if(!$HttpBody) {
+
+        $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))} -UseBasicParsing
 
     }
     else {
 
-        ##TO DO: request with HttpBody
+        $JsonBody = $HttpBody | ConvertTo-Json -Depth 10
+        Write-Verbose -Message "$($HttpMethod)ing body of`n$JsonBody"
+        $Result = Invoke-RestMethod -Method $HttpMethod -Uri $Uri -Headers @{Authorization = 'Basic' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))} -Body $JsonBody -ContentType application/json -UseBasicParsing
 
     }
     
