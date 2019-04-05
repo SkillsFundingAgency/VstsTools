@@ -25,7 +25,7 @@ function New-Deployment {
     process {
 
         $Body = @{
-            comment = "Requested via API call" 
+            comment = "Requested via API call using PAT token." 
             status = "inProgress"
         }
 
