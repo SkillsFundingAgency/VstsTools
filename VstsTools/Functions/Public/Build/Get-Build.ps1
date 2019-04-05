@@ -62,7 +62,9 @@ function Get-Build {
         if ($BuildJson.count -eq 1) {
 
             ##TO DO: return an array (this will break other functions)
-            $Build = New-BuildObject -BuildJson $BuildJson
+            $Build = New-BuildObject -BuildJson $BuildJson.value
+
+            return $Build
 
         }
         elseif ($BuildJson.count -gt 1) {

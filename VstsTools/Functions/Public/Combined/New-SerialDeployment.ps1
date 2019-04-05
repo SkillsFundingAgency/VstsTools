@@ -81,7 +81,18 @@ function New-SerialDeployment {
                 Write-Verbose -Message "Creating release with definition: $($Definition.Name)"
                 if ($PrimaryArtefactBranchName) {
 
-                    $TriggeredRelease = New-Release -ReleaseDefinitionId $Definition.Id -PrimaryArtifactBranchName $PrimaryArtefactBranchName -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
+                    try {
+
+                        $TriggeredRelease = New-Release -ReleaseDefinitionId $Definition.Id -PrimaryArtifactBranchName $PrimaryArtefactBranchName -ProjectName $ProjectName -Instance $Instance -PatToken $PatToken
+
+                    }
+                    catch {
+
+                        Write-Verbose -Message "Failed to create release for $($Definition.Name), skipping ahead to next release definition"
+                        continue
+
+                    }
+
 
                 }
                 else {

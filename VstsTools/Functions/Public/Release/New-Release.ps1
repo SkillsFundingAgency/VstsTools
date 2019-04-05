@@ -60,8 +60,17 @@ function New-Release {
                 BuildDefinitionId = $ReleaseDefinition.PrimaryArtifact.BuildDefinitionId
             }
 
-            $LatestBuild = Get-Build @GetBuildParams | Select-Object -First 1
+            try {
 
+                $LatestBuild = Get-Build @GetBuildParams | Select-Object -First 1
+
+            }
+            catch {
+
+                throw "No build found for branch: $PrimaryArtifactBranchName of primary artifact: $($ReleaseDefinition.PrimaryArtifact.Alias)"
+                
+            }
+            
             Write-Verbose -Message "Setting primary artefact for release to BuildNumber: $($LatestBuild.BuildNumber) \ BuildId: $($LatestBuild.BuildId)"
 
             $Body["artifacts"] = @(
